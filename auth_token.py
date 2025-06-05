@@ -1,4 +1,7 @@
 import requests
+import time
+import json
+import general as g
 
 def getToken(userid,password):
     try:
@@ -9,7 +12,7 @@ def getToken(userid,password):
             'Content-Type' : 'application/json'
         }
         source = requests.post(url,headers=headers)
-        truetatuscode(source.status_code,200)
+        g.truetatuscode(source.status_code,200)
         print("template loaded")
         jsn = json.loads(source.text)
         

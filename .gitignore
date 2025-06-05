@@ -13,3 +13,5 @@ SAMLResponce.txt
 z.bat
 cookies.txt
 /jss
+__pycache__/auth_token.cpython-313.pyc
+__pycache__/settings.cpython-313.pyc
