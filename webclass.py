@@ -3,10 +3,10 @@ import requests
 import json
 import urllib
 from bs4 import BeautifulSoup
-import time
 import os
 import general as g
 import filedownload
+import auth_token as ath
 
 defaultpath = "class"
 webclassurl = "https://rpwebcls.meijo-u.ac.jp"
@@ -17,15 +17,9 @@ def getacs(source):
     acsPath = exccode.split('"')[1].replace('&amp;',"&")
     return acsPath
 
-def truetatuscode(statuscode,truestatucode):
-    if statuscode != truestatucode:
-        print("エラーが発生しました.パソコンがインターネットにつながっていないか，回線が混み合っています．")
-        g.putlog(f"エラー,statuscode:{statuscode}")
-        raise Exception(f"正しいstatuscodeではありません.\n statuscode:{statuscode}.\nしばらくしてから起動してください.")
-
 class webclass:
     def __init__(self,userid,password):
-        tokenId = getToken(userid,password)
+        tokenId = ath.getToken(userid,password)
         url = "https://rpwebcls.meijo-u.ac.jp/webclass/login.php?auth_mode=SAML"
         res = requests.get(url,allow_redirects=False)
         #truetatuscode(res.status_code,302)#statuscode確認
@@ -39,7 +33,7 @@ class webclass:
         #print(cookies)
         #kugiri()
         wbres = requests.get(location,cookies=cookies)
-        truetatuscode(wbres.status_code,200)
+        g.truetatuscode(wbres.status_code,200)
         #print(wbres.text)
         #kugiri()
         soup = BeautifulSoup(wbres.text,"html.parser")
@@ -76,52 +70,20 @@ class webclass:
         g.kugiri()
         webclassurl_ = webclassurl + acsPath
         webclasresponce = requests.get(webclassurl_,cookies=cookies)
-        truetatuscode(webclasresponce.status_code,200)
+        g.truetatuscode(webclasresponce.status_code,200)
         cookies['wcui_session_settings'] = webclasresponce.cookies.get_dict()['wcui_session_settings']
         #print(requests.get(webclassurl_,cookies=cookies).headers)
         self.url = webclassurl_
         self.cookies = cookies
 
-def getToken(userid,password):
-    try:
-        url = 'https://slbsso.meijo-u.ac.jp/opensso/json/authenticate'
-        
 
-        headers = {
-            'Content-Type' : 'application/json'
-        }
-        source = requests.post(url,headers=headers)
-        truetatuscode(source.status_code,200)
-        print("template loaded")
-        jsn = json.loads(source.text)
-        
-        jsn["callbacks"][0]["input"][0]["value"] = userid
-        jsn["callbacks"][1]["input"][0]["value"] = password
-        statuscode = 0
-        for i in range(20):
-            token = requests.post(url,headers=headers,json=jsn)
-            statuscode = token.status_code
-            #print(statuscode)
-            if statuscode == 200:
-                break
-            time.sleep(0.5)
-            
-        succesURL = json.loads(token.text)
-        tokenId = succesURL["tokenId"]
-        #print(succesURL)
-        print(f"tokenId:{tokenId}")
-        #kugiri()
-        return tokenId
-    except:
-        print("tokenidを取得できませんでした")
-        raise BaseException("tokenを取得することができませんでした.時間をおいて再度試してください.")
 
 def responceacspath(url,cookies):
     source = requests.get(url,cookies=cookies)
     #print(source.text)
     acspath = getacs(source.text)
     responce = requests.get(webclassurl+acspath,cookies=cookies)
-    truetatuscode(responce.status_code,200)
+    g.truetatuscode(responce.status_code,200)
     #print(responce.text)
     return responce
 
