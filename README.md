@@ -2,7 +2,7 @@
 
 名城大学のWebClassシステムに自動ログインし，履修している科目のコンテンツ一覧を抽出してJSONファイルとして保存するPythonスクリプトです．
 
-[ktsgsgさん](https://github.com/ktsgsg)の，[webclass_kadai_getter](https://github.com/ktsgsg/webclass_kadai_getter)をフォークし参考にさせていただきました．素晴らしいアイデアをありがとうございます✨
+✨✨[ktsgsgさん](https://github.com/ktsgsg)の，[webclass_kadai_getter](https://github.com/ktsgsg/webclass_kadai_getter)をフォークし参考にさせていただきました．素晴らしいアイデアをありがとうございます✨✨
 
 機能としてはフォーク元より少ないですが，文字データを取得することに絞りリファクタリングをしたことで，今後の開発で課題取得をする際に使いやすいテンプレートとしました．
 
