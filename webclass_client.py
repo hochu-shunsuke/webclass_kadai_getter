@@ -1,12 +1,8 @@
-# webclass_client.py
-
 import urllib.parse
 import requests
 import time
 import json
 from bs4 import BeautifulSoup
-
-# --- auth_token.pyから移植したロジック ---
 
 SSO_URL = 'https://slbsso.meijo-u.ac.jp/opensso/json/authenticate'
 MAX_RETRIES = 5
@@ -46,7 +42,6 @@ def _get_sso_token(userid, password):
         print(f"SSOサーバーの応答形式が予期したものではありません: {e}")
         raise
 
-# --- webclass.pyのロジック ---
 
 WEBCLASS_BASE_URL = "https://rpwebcls.meijo-u.ac.jp"
 
@@ -71,6 +66,7 @@ class WebClassClient:
         self.base_url = WEBCLASS_BASE_URL
         self.dashboard_url = None
         self._login(userid, password)
+        # 認証クッキーの保存ロジックを削除
 
     def _login(self, userid, password):
         try:
@@ -118,6 +114,8 @@ class WebClassClient:
             print(f"ログイン処理中にエラーが発生しました: {e}")
             raise
 
+    # get_auth_cookies メソッドを削除
+    
     def get(self, url, **kwargs):
         """認証済みセッションでGETリクエストを送信する"""
         return self.session.get(url, **kwargs)

@@ -1,5 +1,3 @@
-# settings.py
-
 import json
 from cryptography.fernet import Fernet
 import getpass
