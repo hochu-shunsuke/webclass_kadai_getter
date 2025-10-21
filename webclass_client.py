@@ -2,11 +2,48 @@ import urllib.parse
 import requests
 import time
 import json
+import random
+from typing import Optional, Dict
 from bs4 import BeautifulSoup
 
 SSO_URL = 'https://slbsso.meijo-u.ac.jp/opensso/json/authenticate'
 MAX_RETRIES = 5
 RETRY_DELAY = 1
+WEBCLASS_BASE_URL = "https://rpwebcls.meijo-u.ac.jp"
+#　サーバに迷惑をかけないように、User-Agentは多めに用意してランダムに
+USER_AGENTS = [
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36',
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.1 Safari/605.1.15',
+    'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36',
+    'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:40.0) Gecko/20100101 Firefox/40.1',
+    'Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0 Mobile/15A372 Safari/604.1',
+    'Mozilla/5.0 (Linux; Android 10; SM-G975F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.106 Mobile Safari/537.36',
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/117.0',
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 13_4_1) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.4 Safari/605.1.15',
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Edg/120.0.0.0',
+    'Mozilla/5.0 (Linux; Android 13; Pixel 7 Pro) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.5790.170 Mobile Safari/537.36',
+    'Mozilla/5.0 (iPad; CPU OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1',
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.5938.92 Safari/537.36',
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 12_6_3) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.3 Safari/605.1.15',
+    'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/109.0',
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36',
+    'Mozilla/5.0 (Linux; Android 12; SM-A528B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.5481.153 Mobile Safari/537.36',
+    'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15A372 Safari/604.1',
+]
+
+
+def build_headers(referer: Optional[str] = None) -> Dict[str, str]:
+    ua = random.choice(USER_AGENTS)
+    headers = {
+        "User-Agent": ua,
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+        "Accept-Language": "ja-JP,ja;q=0.9,en-US;q=0.8,en;q=0.7",
+        "Accept-Encoding": "gzip, deflate, br",
+        "Connection": "keep-alive",
+    }
+    if referer:
+        headers["Referer"] = referer
+    return headers
 
 def _get_sso_token(userid, password):
     """SSOサーバーから認証トークンを取得する"""
@@ -23,14 +60,14 @@ def _get_sso_token(userid, password):
         jsn["callbacks"][1]["input"][0]["value"] = password
         
         # 3. 資格情報を送信
-        for attempt in range(MAX_RETRIES):
+        for atdatat in range(MAX_RETRIES):
             token_res = requests.post(SSO_URL, headers=headers, json=jsn)
             if token_res.status_code == 200:
                 token_data = token_res.json()
                 print(f"SSOトークン取得成功．")
                 return token_data["tokenId"]
             
-            print(f"認証試行 {attempt + 1}/{MAX_RETRIES} 失敗 (Status: {token_res.status_code}). {RETRY_DELAY}秒後リトライ...")
+            print(f"認証試行 {atdatat + 1}/{MAX_RETRIES} 失敗 (Status: {token_res.status_code}). {RETRY_DELAY}秒後リトライ...")
             time.sleep(RETRY_DELAY)
             
         raise Exception(f"トークン取得失敗 (Status: {token_res.status_code})")
@@ -60,9 +97,7 @@ class WebClassClient:
     def __init__(self, userid, password):
         print("認証セッションを開始します...")
         self.session = requests.Session()
-        self.session.headers.update({
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36'
-        })
+        self.session.headers.update(build_headers())
         self.base_url = WEBCLASS_BASE_URL
         self.dashboard_url = None
         self._login(userid, password)
@@ -116,6 +151,7 @@ class WebClassClient:
 
     # get_auth_cookies メソッドを削除
     
-    def get(self, url, **kwargs):
-        """認証済みセッションでGETリクエストを送信する"""
-        return self.session.get(url, **kwargs)
+    def get(self, url, referer: Optional[str] = None, **kwargs):
+        """認証済みセッションでGETリクエストを送信する。Refererも任意指定可"""
+        headers = build_headers(referer=referer)
+        return self.session.get(url, headers=headers, **kwargs)

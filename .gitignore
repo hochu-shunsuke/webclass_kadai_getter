@@ -1,7 +1,7 @@
 # 認証情報・一時ファイル
 key.key
 userdata.txt
-temp/
+data/
 __pycache__/
 
 # 仮想環境

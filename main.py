@@ -8,7 +8,7 @@ from webclass_client import WebClassClient
 from parser import parse_course_contents
 
 # --- 定数 ---
-TEMP_DIR = Path("temp")
+data_DIR = Path("data")
 # MAX_WORKERS = 10  # 削除
 REDIRECT_REGEX = re.compile(r'window.location.href\s*=\s*"([^"]+)"')
 
@@ -72,7 +72,7 @@ def fetch_and_parse_course(course_info, client: WebClassClient):
         # 3. OSで禁止されている文字を '_' に置換
         safe_name = re.sub(r'[\\/*?:"<>|]', '_', cleaned_name)
         
-        json_fname = TEMP_DIR / f"{safe_name}.json"
+        json_fname = data_DIR / f"{safe_name}.json"
 
         # HTMLを解析
         data = parse_course_contents(html)
@@ -88,7 +88,7 @@ def fetch_and_parse_course(course_info, client: WebClassClient):
 
 def main():
     # 1. 出力ディレクトリ作成
-    TEMP_DIR.mkdir(exist_ok=True)
+    data_DIR.mkdir(exist_ok=True)
     
     # 2. 資格情報取得
     try:
