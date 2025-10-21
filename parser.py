@@ -6,8 +6,8 @@ ID_REGEX = re.compile(r'id=([a-f0-9]+)')
 
 def parse_course_contents(html):
     """
-    WebClassの各コースのトップページのHTMLを解析し、
-    コンテンツリストを抽出する。
+    WebClassの各コースのトップページのHTMLを解析し，
+    コンテンツリストを抽出する．
     """
     soup = BeautifulSoup(html, 'html.parser')
     result = []

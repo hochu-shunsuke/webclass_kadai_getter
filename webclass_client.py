@@ -27,7 +27,7 @@ def _get_sso_token(userid, password):
             token_res = requests.post(SSO_URL, headers=headers, json=jsn)
             if token_res.status_code == 200:
                 token_data = token_res.json()
-                print(f"SSOトークン取得成功。")
+                print(f"SSOトークン取得成功．")
                 return token_data["tokenId"]
             
             print(f"認証試行 {attempt + 1}/{MAX_RETRIES} 失敗 (Status: {token_res.status_code}). {RETRY_DELAY}秒後リトライ...")
@@ -101,7 +101,7 @@ class WebClassClient:
             # 7. 最終的なダッシュボードのURLを取得
             acs_path = _get_acs_path(login_php_res.text)
             if not acs_path:
-                raise Exception("最終的なリダイレクトパス(acsPath)の取得に失敗しました。")
+                raise Exception("最終的なリダイレクトパス(acsPath)の取得に失敗しました．")
                 
             self.dashboard_url = urllib.parse.urljoin(self.base_url, acs_path)
             

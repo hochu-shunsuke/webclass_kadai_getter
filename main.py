@@ -29,7 +29,7 @@ def get_course_links(client: WebClassClient):
                 
         print(f"科目リンク抽出数: {len(course_links)}")
         if not course_links:
-            print("警告: 科目が見つかりません。")
+            print("警告: 科目が見つかりません．")
         return list(course_links)
         
     except Exception as e:
@@ -38,7 +38,7 @@ def get_course_links(client: WebClassClient):
 
 def fetch_and_parse_course(course_info, client: WebClassClient):
     """
-    単一の科目のページを取得、解析し、JSONファイルに保存する (直列処理用)
+    単一の科目のページを取得，解析し，JSONファイルに保存する (直列処理用)
     """
     course_name, href = course_info
     
@@ -63,7 +63,7 @@ def fetch_and_parse_course(course_info, client: WebClassClient):
                 html = res.text
 
         # ファイル名を安全なものに（改善後のロジック）
-        # 1. '»' とそれに続く空白を削除し、前後の空白を削除
+        # 1. '»' とそれに続く空白を削除し，前後の空白を削除
         cleaned_name = re.sub(r'»\s*', '', course_name).strip()
         
         # 2. 連続する空白(全角/半角)を単一の半角スペースに正規化
@@ -107,7 +107,7 @@ def main():
     # 4. 科目一覧を取得
     course_links = get_course_links(client)
     if not course_links:
-        print("処理する科目がありません。終了します。")
+        print("処理する科目がありません．終了します．")
         return
 
     # 5. 直列処理で全科目を処理
@@ -117,7 +117,7 @@ def main():
         name, result = fetch_and_parse_course(course, client)
         print(f"  ({i+1}/{len(course_links)}) [{result}] - {name}")
 
-    print("すべての処理が完了しました。")
+    print("すべての処理が完了しました．")
 
 if __name__ == "__main__":
     main()
