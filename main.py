@@ -2,7 +2,6 @@ import json
 import re
 import urllib.parse
 from pathlib import Path
-import requests
 from bs4 import BeautifulSoup
 import settings
 from webclass_client import WebClassClient

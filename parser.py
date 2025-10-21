@@ -27,6 +27,10 @@ def parse_course_contents(html):
             for item in list_group.find_all('section', class_='list-group-item cl-contentsList_listGroupItem'):
                 is_new = item.find('div', class_='cl-contentsList_new') is not None
                 name_tag = item.find('h4', class_='cm-contentsList_contentName')
+                # cl-contentsList_new（New）を除去
+                if name_tag:
+                    for new_tag in name_tag.find_all('div', class_='cl-contentsList_new'):
+                        new_tag.decompose()
                 a_tag = name_tag.find('a') if name_tag else None
                 title = name_tag.get_text(strip=True) if name_tag else ""
                 url = a_tag['href'] if a_tag and a_tag.has_attr('href') else ""
