@@ -1,7 +1,7 @@
 import requests
 import time
 import json
-import general as g
+
 
 def getToken(userid,password):
     try:
@@ -12,7 +12,9 @@ def getToken(userid,password):
             'Content-Type' : 'application/json'
         }
         source = requests.post(url,headers=headers)
-        g.truetatuscode(source.status_code,200)
+        if source.status_code != 200:
+            print(f"エラー: statuscode={source.status_code}")
+            raise Exception(f"正しいstatuscodeではありません. statuscode={source.status_code}. しばらくしてから起動してください.")
         print("template loaded")
         jsn = json.loads(source.text)
         
